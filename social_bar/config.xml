@@ -2,9 +2,9 @@
 <module>
     <name>social_bar</name>
     <displayName><![CDATA[Header Social Bar]]></displayName>
-    <version><![CDATA[1.0.0]]></version>
-    <description><![CDATA[Social bar on header ]]></description>
-    <author><![CDATA[Ga&euml;l ROBIN]]></author>
+    <version><![CDATA[1.2.5]]></version>
+    <description><![CDATA[Social bar custom displayed on top of the page over main Menu. ]]></description>
+    <author><![CDATA[Gaël ROBIN]]></author>
     <tab><![CDATA[front_office_features]]></tab>
 	<confirmUninstall><![CDATA[Are you sure you want to uninstall the module]]></confirmUninstall>
     <is_configurable>1</is_configurable>

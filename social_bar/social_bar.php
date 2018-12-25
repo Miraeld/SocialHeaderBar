@@ -21,7 +21,7 @@ class Social_bar extends Module
     {
         $this->name = 'social_bar';
         $this->tab = 'front_office_features';
-        $this->version = '1.2.0';
+        $this->version = '1.2.5';
         $this->author = 'Gaël ROBIN';
         $this->need_instance = 1;
 
@@ -46,9 +46,11 @@ class Social_bar extends Module
      */
     public function install()
     {
-        Configuration::updateValue('SOCIAL_BAR_LIVE_MODE', false);
-
         include(dirname(__FILE__).'/sql/install.php');
+        $configInit = $this->getDbInfo()[0];
+        Configuration::updateValue('SOCIAL_BAR_FACEBOOK_URL', $configInit['facebook_url']);
+        Configuration::updateValue('SOCIAL_BAR_YOUTUBE_URL', $configInit['youtube_url']);
+        Configuration::updateValue('SOCIAL_BAR_INSTAGRAM_URL', $configInit['instagram_url']);
 
         return parent::install() &&
             $this->registerHook('header') &&
@@ -58,7 +60,9 @@ class Social_bar extends Module
 
     public function uninstall()
     {
-        Configuration::deleteByName('SOCIAL_BAR_LIVE_MODE');
+        Configuration::deleteByName('SOCIAL_BAR_FACEBOOK_URL');
+        Configuration::deleteByName('SOCIAL_BAR_YOUTUBE_URL');
+        Configuration::deleteByName('SOCIAL_BAR_INSTAGRAM_URL');
 
         include(dirname(__FILE__).'/sql/uninstall.php');
 
@@ -120,8 +124,8 @@ class Social_bar extends Module
         return array(
             'form' => array(
                 'legend' => array(
-                'title' => $this->l('Social Bar Header Settings'),
-                'icon' => 'icon-cogs',
+                  'title' => $this->l('Social Header Bar Settings'),
+                  'icon' => 'icon-cogs',
                 ),
                 'input' => array(
                     array(
@@ -131,6 +135,7 @@ class Social_bar extends Module
                         'desc' => $this->l('Enter a valid Facebook URL, if you leave it blank it will not be displayed'),
                         'name' => 'SOCIAL_BAR_FACEBOOK_URL',
                         'label' => $this->l('Facebook URL'),
+                        'placeholder' => 'https://facebook.com',
                     ),
                     array(
                         'col' => 3,
@@ -139,6 +144,7 @@ class Social_bar extends Module
                         'desc' => $this->l('Enter a valid Youtube URL, if you leave it blank it will not be displayed'),
                         'name' => 'SOCIAL_BAR_YOUTUBE_URL',
                         'label' => $this->l('YouTube URL'),
+                        'placeholder' => 'https://youtube.com',
                     ),
                     array(
                         'col' => 3,
@@ -147,6 +153,7 @@ class Social_bar extends Module
                         'desc' => $this->l('Enter a valid Instagram URL, if you leave it blank it will not be displayed'),
                         'name' => 'SOCIAL_BAR_INSTAGRAM_URL',
                         'label' => $this->l('Instagram URL'),
+                        'placeholder' => 'https://instagram.com',
                     ),
                 ),
                 'submit' => array(
@@ -244,12 +251,7 @@ class Social_bar extends Module
     {
       $allData = $this->getDbInfo()[0];
       $this->context->smarty->assign('urls', $allData);
-      // $this->context->smarty->assign('facebook_url', $test['facebook_url']);
-      // $this->context->smarty->assign('youtube_url', $test['youtube_url']);
-      // $this->context->smarty->assign('instagram_url', $test['instagram_url']);
-
       $this->context->smarty->assign('module_dir', $this->_path);
-      // Load the template front/front.tpl
 
       $output = $this->context->smarty->fetch($this->local_path.'views/templates/front/front.tpl');
 
