@@ -21,7 +21,7 @@ class Social_bar extends Module
     {
         $this->name = 'social_bar';
         $this->tab = 'front_office_features';
-        $this->version = '1.0.0';
+        $this->version = '1.2.0';
         $this->author = 'Gaël ROBIN';
         $this->need_instance = 1;
 
@@ -33,7 +33,7 @@ class Social_bar extends Module
         parent::__construct();
 
         $this->displayName = $this->l('Header Social Bar');
-        $this->description = $this->l('Social bar on top of header ');
+        $this->description = $this->l('Social bar custom displayed on top of the page over main Menu.');
 
         $this->confirmUninstall = $this->l('Are you sure you want to uninstall the module');
 
@@ -151,6 +151,7 @@ class Social_bar extends Module
                 ),
                 'submit' => array(
                     'title' => $this->l('Save'),
+                    'name' => 'submit_form',
                 ),
             ),
         );
@@ -173,6 +174,7 @@ class Social_bar extends Module
      */
     protected function postProcess()
     {
+      if (Tools::isSubmit('submit_form')) {
         $form_values = $this->getConfigFormValues();
 
         foreach (array_keys($form_values) as $key) {
@@ -184,44 +186,45 @@ class Social_bar extends Module
             }
         }
 
+        $this->notificationDisplay($this->saveDb($allUrls));
 
-        $sql = array();
-        $values = '(\'1\',\''.$allUrls['SOCIAL_BAR_FACEBOOK_URL'].'\',\''.$allUrls['SOCIAL_BAR_YOUTUBE_URL'].'\',\''.$allUrls['SOCIAL_BAR_INSTAGRAM_URL'].'\')';
-        $sql[] = 'UPDATE `'._DB_PREFIX_.'social_bar`
-                  SET facebook_url = \''. $allUrls['SOCIAL_BAR_FACEBOOK_URL'] .'\', youtube_url =\''.$allUrls['SOCIAL_BAR_YOUTUBE_URL'].'\', instagram_url = \''.$allUrls['SOCIAL_BAR_INSTAGRAM_URL'].'\'
-                    WHERE id_social_bar = 1;';
-        $this->social_bar_succ = false;
-        foreach ($sql as $query) {
-            if (Db::getInstance()->execute($query) == false) {
-                $this->social_bar_succ = false;
-                return false;
-            } else {
-              $this->social_bar_succ = true;
-            }
-        }
+      }
+    }
 
-        if ($this->social_bar_succ) {
-
+    private function notificationDisplay($show) {
+      if ($show) {
+        ?>
+            <script>
+              window.onload = function () {
+                var success = document.getElementById('social_bar_success');
+                success.style.display = 'block';
+              }
+            </script>
+        <?php
+      } else {
         ?>
           <script>
-            window.onload = function () {
-              var success = document.getElementById('social_bar_success');
-              success.style.display = 'block';
-            }
+
+          window.onload = function () {
+            var error = document.getElementById('social_bar_error');
+            error.style.display = 'block';
+
+          }
           </script>
-      <?php
-      } else {?>
-        <script>
-
-        window.onload = function () {
-          var error = document.getElementById('social_bar_error');
-          error.style.display = 'block';
-
-        }
-        </script>
         <?php
       }
     }
+
+    private function saveDb($allUrls) {
+       $query = 'UPDATE `'._DB_PREFIX_.'social_bar` SET facebook_url = \''. $allUrls['SOCIAL_BAR_FACEBOOK_URL'] .'\', youtube_url =\''.$allUrls['SOCIAL_BAR_YOUTUBE_URL'].'\', instagram_url = \''.$allUrls['SOCIAL_BAR_INSTAGRAM_URL'].'\' WHERE id_social_bar = 1;';
+
+        if (Db::getInstance()->execute($query)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public function hookBackOfficeHeader()
     {
         if (Tools::getValue('module_name') == $this->name) {
@@ -239,12 +242,11 @@ class Social_bar extends Module
 
     public function hookdisplaySocialHeader()
     {
-      $test = $this->getDbInfo()[0];
-      // var_dump($test);
-
-      $this->context->smarty->assign('facebook_url', $test['facebook_url']);
-      $this->context->smarty->assign('youtube_url', $test['youtube_url']);
-      $this->context->smarty->assign('instagram_url', $test['instagram_url']);
+      $allData = $this->getDbInfo()[0];
+      $this->context->smarty->assign('urls', $allData);
+      // $this->context->smarty->assign('facebook_url', $test['facebook_url']);
+      // $this->context->smarty->assign('youtube_url', $test['youtube_url']);
+      // $this->context->smarty->assign('instagram_url', $test['instagram_url']);
 
       $this->context->smarty->assign('module_dir', $this->_path);
       // Load the template front/front.tpl
