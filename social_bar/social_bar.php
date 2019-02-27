@@ -21,7 +21,7 @@ class Social_bar extends Module
     {
         $this->name = 'social_bar';
         $this->tab = 'front_office_features';
-        $this->version = '1.2.5';
+        $this->version = '1.3.0';
         $this->author = 'Gaël ROBIN';
         $this->need_instance = 1;
 
@@ -51,6 +51,7 @@ class Social_bar extends Module
         Configuration::updateValue('SOCIAL_BAR_FACEBOOK_URL', $configInit['facebook_url']);
         Configuration::updateValue('SOCIAL_BAR_YOUTUBE_URL', $configInit['youtube_url']);
         Configuration::updateValue('SOCIAL_BAR_INSTAGRAM_URL', $configInit['instagram_url']);
+        Configuration::updateValue('SOCIAL_BAR_LINE_URL', $configInit['line_id']);
 
         return parent::install() &&
             $this->registerHook('header') &&
@@ -63,6 +64,7 @@ class Social_bar extends Module
         Configuration::deleteByName('SOCIAL_BAR_FACEBOOK_URL');
         Configuration::deleteByName('SOCIAL_BAR_YOUTUBE_URL');
         Configuration::deleteByName('SOCIAL_BAR_INSTAGRAM_URL');
+        Configuration::deleteByName('SOCIAL_BAR_LINE_URL');
 
         include(dirname(__FILE__).'/sql/uninstall.php');
 
@@ -155,6 +157,15 @@ class Social_bar extends Module
                         'label' => $this->l('Instagram URL'),
                         'placeholder' => 'https://instagram.com',
                     ),
+                    array(
+                        'col' => 3,
+                        'type' => 'text',
+                        'prefix' => '<i class="icon icon-asterisk"></i>',
+                        'desc' => $this->l('Enter a valid Line URL/ID, if you leave it blank it will not be displayed'),
+                        'name' => 'SOCIAL_BAR_LINE_URL',
+                        'label' => $this->l('Line URL/ID'),
+                        'placeholder' => 'Line URL',
+                    ),
                 ),
                 'submit' => array(
                     'title' => $this->l('Save'),
@@ -173,6 +184,7 @@ class Social_bar extends Module
             'SOCIAL_BAR_FACEBOOK_URL' => Configuration::get('SOCIAL_BAR_FACEBOOK_URL'),
             'SOCIAL_BAR_YOUTUBE_URL' => Configuration::get('SOCIAL_BAR_YOUTUBE_URL'),
             'SOCIAL_BAR_INSTAGRAM_URL' => Configuration::get('SOCIAL_BAR_INSTAGRAM_URL'),
+            'SOCIAL_BAR_LINE_URL' => Configuration::get('SOCIAL_BAR_LINE_URL'),
         );
     }
 
@@ -223,7 +235,13 @@ class Social_bar extends Module
     }
 
     private function saveDb($allUrls) {
-       $query = 'UPDATE `'._DB_PREFIX_.'social_bar` SET facebook_url = \''. $allUrls['SOCIAL_BAR_FACEBOOK_URL'] .'\', youtube_url =\''.$allUrls['SOCIAL_BAR_YOUTUBE_URL'].'\', instagram_url = \''.$allUrls['SOCIAL_BAR_INSTAGRAM_URL'].'\' WHERE id_social_bar = 1;';
+      $query = '';
+      $query .= 'UPDATE `'._DB_PREFIX_.'social_bar` SET';
+      $query .= '`facebook_url` = \''.$allUrls['SOCIAL_BAR_FACEBOOK_URL'].'\', ';
+      $query .= '`youtube_url` =\''.$allUrls['SOCIAL_BAR_YOUTUBE_URL'].'\', ';
+      $query .= '`instagram_url` = \''.$allUrls['SOCIAL_BAR_INSTAGRAM_URL'].'\', ';
+      $query .= '`line_id` = \''.$allUrls['SOCIAL_BAR_LINE_URL'].'\' ';
+      $query .= 'WHERE id_social_bar = 1;';
 
         if (Db::getInstance()->execute($query)) {
             return true;

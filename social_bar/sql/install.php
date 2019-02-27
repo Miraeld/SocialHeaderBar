@@ -21,9 +21,10 @@ $sql[] = 'CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'social_bar` (
     `facebook_url` TEXT,
     `youtube_url` TEXT,
     `instagram_url` TEXT,
+    `line_id` TEXT,
     PRIMARY KEY  (`id_social_bar`)
 ) ENGINE=' . _MYSQL_ENGINE_ . ' DEFAULT CHARSET=utf8;';
-$sql[] = 'INSERT INTO `'. _DB_PREFIX_ .'social_bar` VALUES (\'1\',\'https://facebook.com\',\'https://youtube.com\', \'https://instagram.com\')';
+$sql[] = 'INSERT INTO `'. _DB_PREFIX_ .'social_bar` VALUES (\'1\',\'https://facebook.com\',\'https://youtube.com\', \'https://instagram.com\','line_ID')';
 foreach ($sql as $query) {
     if (Db::getInstance()->execute($query) == false) {
         return false;
